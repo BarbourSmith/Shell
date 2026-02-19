@@ -40,16 +40,20 @@
       "uniqueID": 1738957504841,
       "ioValues": [
         {
-          "name": "dist",
-          "ioValue": 5
+          "name": "geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
         },
         {
-          "name": "height",
+          "name": "wallThickness",
+          "ioValue": 10
+        },
+        {
+          "name": "direction",
           "ioValue": 10
         }
       ],
       "codeVersion": 1,
-      "code": " \n      //Inputs:[inputShape, dist, height]\n      //This defines the molecules inputs and creates variables with the same names which can be referenced in the code\n      \n      //Takes the address and gets the shape from the library\n      let importedShape = library[inputShape]\n      \n      //This makes a new copy of of the shape (to prevent garbage collection issues),\n      //and moves it in the X direction. Note that this will not work if the input is an assembly\n      let movedShape = importedShape.geometry[0].clone().shell(5, (f) => f.inPlane(\"XY\", 20));\n      \n      \n      //Shapes stored in the library have tags, a color, a plane, and a bill of materials like this. We don't modify them here\n      let shape1 = {\n        geometry: [movedShape],\n        tags: importedShape.tags,\n        color: importedShape.color,\n        plane: importedShape.plane,\n        bom: importedShape.bom\n      }\n      \n      //We could at this point return shape1 as a complete shape and it will be automatically written to the library for us\n      return shape1\n      \n      //We can also create a new shape from scratch\n      let createdRectangle = replicad.drawRectangle(5,7)\n      //This is the plane we are going to put our new shape on\n      const newPlane = new Plane().pivot(0, 'Y');\n      //And we extrude the shape to make it 3D\n      let createdShape = createdRectangle.sketchOnPlane(newPlane).extrude(height)\n      \n      //For our new geometry we need to define the tags, color, plane, etc\n      let shape2 = {\n          geometry: [createdShape], \n          tags: [\"aTag\"],\n          color: '#A3CE5B',\n          plane: newPlane,\n          bom: []\n      }\n      \n      \n          /**\n          To Use the Code Atom, enter your inputs to the input list a.e Inputs:[shape, height]\n          If your input is connected to another atom with a replicad geometry you can access its geometry by looking up its ID in your library. a.e library[Input1].geometry[0] \n          Use any replicad available methods to modify your geometry. Learn more about all of the available methods at \n          https://replicad.xyz/docs/introapp/UserGuide.html \n          Return a replicad object that includes geometry, color, tags and plane. \n      \n      \n          Example Code Atom:\n      \n            Inputs:[shape, x];\n      \n            let finalShape = library[shape].geometry[0].clone.translate[x,0,0]\n      \n            return {geometry: finalShape, color: library[shape].color, plane: library[shape].plane, tags: library[shape].tags }\n      \n            - See more examples at _______ \n      \n      \n          */\n      "
+      "code": " \n      //Inputs:[geometry, wallThickness, direction]\n      //geometry: the input solid shape to shell\n      //wallThickness: the thickness of the shell walls\n      //direction: the Z offset of the face (in the XY plane) to open/remove\n      \n      //Takes the address and gets the shape from the library\n      let importedShape = library[geometry]\n      if (!importedShape || !importedShape.geometry || !importedShape.geometry[0]) {\n        throw new Error('Shell: a valid geometry input is required')\n      }\n      \n      //Apply the shell operation: hollow out the solid, removing the face at the given direction offset\n      let shelledShape = importedShape.geometry[0].clone().shell(wallThickness, (f) => f.inPlane(\"XY\", direction));\n      \n      //Return the shelled shape, preserving the original tags, color, plane and bom\n      return {\n        geometry: [shelledShape],\n        tags: importedShape.tags,\n        color: importedShape.color,\n        plane: importedShape.plane,\n        bom: importedShape.bom\n      }\n      "
     },
     {
       "atomType": "Circle",
@@ -93,7 +97,7 @@
           "ioValue": "__GEOMETRY_INPUT__"
         }
       ],
-      "readMeText": "Readme text here",
+      "readMeText": "## Shell\n\nHollows out a solid geometry to create a thin-walled shell.\n\n**Inputs:**\n- **Geometry** – the input solid shape to shell\n- **Wall_Thickness** – thickness of the shell walls (mm)\n- **Direction** – Z offset of the face in the XY plane to open/remove",
       "global": true
     },
     {
@@ -131,8 +135,18 @@
       "ap2ID": 1738957513523
     },
     {
-      "ap2Name": "inputShape",
-      "ap1ID": 1738957513523,
+      "ap2Name": "geometry",
+      "ap1ID": "id-21",
+      "ap2ID": 1738957504841
+    },
+    {
+      "ap2Name": "direction",
+      "ap1ID": "id-18",
+      "ap2ID": 1738957504841
+    },
+    {
+      "ap2Name": "wallThickness",
+      "ap1ID": "id-24",
       "ap2ID": 1738957504841
     }
   ],
