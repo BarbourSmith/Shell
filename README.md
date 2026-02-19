@@ -6,7 +6,16 @@
 
 
 
- Readme text here
+ ## Shell
+
+Hollows out a solid geometry to create a thin-walled shell.
+
+**Inputs:**
+- **Geometry** – the input solid shape to shell
+- **Wall_Thickness** – thickness of the shell walls (mm)
+- **Direction** – Z offset of the face in the XY plane to open/remove
+
+**Value:** __GEOMETRY_INPUT__
 
 
 
